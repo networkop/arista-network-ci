@@ -9,6 +9,7 @@ RUN apk update && \
 
 # Ansible and docker-topo dependencies
 RUN pip3 install netaddr
+RUN pip3 install jmespath
 RUN pip2 install jmespath
 
 # This bit installs docker-topo
