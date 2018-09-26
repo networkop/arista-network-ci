@@ -1,0 +1,91 @@
+---
+Clos:
+  Spine-1:
+    Leaf-1:
+      - ipv4_subnet: 10.0.254.0/31
+        prod:
+          local:   Ethernet1
+          remote:  Ethernet1
+        lab:
+          local:   eth1
+          remote:  eth1
+    Leaf-2:
+      - ipv4_subnet: 10.0.254.2/31
+        prod:
+          local:   Ethernet2
+          remote:  Ethernet1
+        lab:
+          local:   eth2
+          remote:  eth1
+    Leaf-3:
+      - ipv4_subnet: 10.0.254.4/31
+        prod:
+          local:   Ethernet3
+          remote:  Ethernet1
+        lab:
+          local:   eth3
+          remote:  eth1
+      
+  Spine-2:
+    Leaf-1:
+      - ipv4_subnet: 10.0.255.0/31
+        prod:
+          local:   Ethernet1
+          remote:  Ethernet2
+        lab:
+          local:   eth1
+          remote:  eth2
+    Leaf-2:
+      - ipv4_subnet: 10.0.255.2/31
+        prod:
+          local:   Ethernet2
+          remote:  Ethernet2
+        lab:
+          local:   eth2
+          remote:  eth2
+      
+    Leaf-3:
+      - ipv4_subnet: 10.0.255.4/31
+        prod:
+          local:   Ethernet3
+          remote:  Ethernet2
+        lab:
+          local:   eth3
+          remote:  eth2
+      
+bgp:
+  asn:
+    Spine-1: 65100
+    Spine-2: 65100
+    Leaf-1:  65001
+    Leaf-2:  65002
+    Leaf-3:  65003
+  routerid:
+    Spine-1: 1.1.1.100/32
+    Spine-2: 1.1.1.200/32
+    Leaf-1:  1.1.1.1/32
+    Leaf-2:  1.1.1.2/32
+    Leaf-3:  1.1.1.3/32
+  
+servers:
+  Leaf-1:
+    interfaces:
+      lab: eth3
+      prod: Ethernet10-11
+    vlan: 10
+    svi: 192.168.10.1/24
+  Leaf-2:
+    interfaces:
+      lab: eth3
+      prod: Ethernet10
+    vlan: 20
+    svi: 192.168.20.1/24
+  Leaf-3:
+    interfaces:
+      lab: eth3
+      prod: Ethernet10
+    vlan: 30
+    svi: 192.168.30.3/24
+
+management:
+  username: arista

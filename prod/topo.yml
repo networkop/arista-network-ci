@@ -1,0 +1,23 @@
+VERSION: 2
+driver: veth
+PREFIX: prod
+CONF_DIR: ./configs
+CEOS_IMAGE: ceos:4.20.0F
+links:
+  - endpoints:
+    - Leaf-1:eth0
+    - Leaf-2:eth0
+    - Leaf-3:eth0
+    - Spine-1:eth0
+    - Spine-2:eth0
+    driver: bridge
+  - endpoints: ["Leaf-1:eth1", "Spine-1:eth1"]
+  - endpoints: ["Leaf-1:eth2", "Spine-2:eth1"]
+  - endpoints: ["Leaf-2:eth1", "Spine-1:eth2"]
+  - endpoints: ["Leaf-2:eth2", "Spine-2:eth2"]
+  - endpoints: ["Leaf-3:eth1", "Spine-1:eth3"]
+  - endpoints: ["Leaf-3:eth2", "Spine-2:eth3"]
+  - endpoints: ["Leaf-1:eth10", "Host-1:eth1:192.168.10.10/24"]
+  - endpoints: ["Leaf-1:eth11", "Host-11:eth1:192.168.10.11/24"]
+  - endpoints: ["Leaf-2:eth10", "Host-2:eth1:192.168.20.20/24"]
+  - endpoints: ["Leaf-3:eth10", "Host-3:eth1:192.168.30.30/24"]

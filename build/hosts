@@ -1,0 +1,12 @@
+[clos:children]
+Spines
+Leaves
+
+[Spines]
+Spine-1 ansible_port=8003 
+Spine-2 ansible_port=8004
+
+[Leaves]
+Leaf-1 ansible_port=8000 
+Leaf-2 ansible_port=8001 
+Leaf-3 ansible_port=8002 

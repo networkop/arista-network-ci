@@ -1,0 +1,35 @@
+
+############################
+# IP routing table before: #
+############################
+
+{% set sir_before = sir_diff.msg[2] %}
+{% for route,attrs in sir_before.items() %}
+{{ route }} via {{ attrs | json_query('vias[*].interface') | join(' and ') }}
+{% endfor %}
+------------------------------------------------------------------
+
+###########################
+# IP routing table after: #
+###########################
+
+{% set sir_after = sir_diff.msg[4] %}
+{% for route,attrs in sir_after.items() %}
+{{ route }} via {{ attrs | json_query('vias[*].interface') | join(' and ') }}
+{% endfor %}
+------------------------------------------------------------------
+
+###########################
+# IP routing table added: #
+###########################
+
+{{ sir_after.keys() | difference(sir_before.keys()) | to_nice_json }}
+------------------------------------------------------------------
+
+#############################
+# IP routing table removed: #
+#############################
+
+{{ sir_before.keys() | difference(sir_after.keys()) | to_nice_json }}
+------------------------------------------------------------------
+

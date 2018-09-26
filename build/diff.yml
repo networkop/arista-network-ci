@@ -1,0 +1,26 @@
+---
+- hosts: clos
+  connection: local
+  gather_facts: no
+  
+  tasks:
+  - name: Push new configuration
+    eos_config:
+      provider: "{{ eapi }}"
+      diff_against: session
+      src: "{{ confdir }}/{{ buildenv }}_{{inventory_hostname}}"
+      match: none
+    register: diff
+    vars:
+      PROD_IP: localhost
+      confdir: './configs' 
+      buildenv: lab
+  
+  - name: Save diff to a file
+    copy:
+      dest: "{{ outpath }}/{{ buildenv }}_{{inventory_hostname}}.txt"
+      content: "{{ diff.diff.prepared }}"
+    check_mode: no
+    when: diff.diff.prepared|length > 1
+    vars:
+      outpath: './diffs'

@@ -1,0 +1,32 @@
+---
+- hosts: clos
+  connection: local
+  gather_facts: no
+  
+  pre_tasks:
+  - include_role:
+      name: snapshot
+    vars:
+      when: before
+      outpath: "./snapshots"
+
+  tasks:
+  - name: Push new configuration
+    eos_config:
+      provider: "{{ eapi }}"
+      replace: config
+      src: "{{ confdir }}/{{ buildenv }}_{{inventory_hostname}}"
+      match: none
+    vars:
+      confdir: "./configs"
+  
+  - name: Wait for network to converge
+    wait_for: timeout=10
+    run_once: yes
+
+  post_tasks:
+  - include_role:
+      name: snapshot
+    vars:
+      when: after
+      outpath: "./snapshots"

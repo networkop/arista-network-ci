@@ -1,0 +1,36 @@
+---
+# Defaults for eAPI connectivity
+TRANSPORT: https
+USERNAME: arista
+PASSWORD: arista
+
+# Network Validation Run Suite Format variables
+# Run formats - suite: run each test once with all variables. For example if there are tests that access more than one device.
+#               device: run each test on each device.
+RUNFORMAT: suite
+
+# Switches/Devices/Nodes
+nodes:
+  Leaf-3:
+    host: localhost
+    port: 8002
+
+# List tags that are considered "safe for use on production networks"
+PROD_TAGS:
+  - ignoretags
+
+# List test suites to run.  Can be directories or individual files
+# Example:
+# suites:
+#   - network_validation
+#   - network_validation/OSS_switch_inventory.txt
+testfiles:
+  - network_validation
+
+# Specify intent for certain feature tests.
+
+# By default, many tests will inspect the running-config, then validate teh
+# operational state of the configured features. Items specified in this section
+# allow you to define expected values that should be defined in the devices.
+
+#MLAG_DOMAIN: my_mlag_domain

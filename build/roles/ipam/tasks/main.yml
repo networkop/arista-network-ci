@@ -1,0 +1,6 @@
+- name: Assign IP address information from IPAM
+  my_ipam: 
+    clos: "{{ Clos }}"
+    env:  "{{ buildenv }}"
+  run_once: True
+

@@ -1,0 +1,48 @@
+version: "3"
+services:
+  gitlab:
+    image: gitlab/gitlab-ce:latest
+    container_name: gitlab-lab
+    hostname: gitlab-lab
+    privileged: true
+    environment:
+      GITLAB_ROOT_PASSWORD: GitLabAdmin
+      GITLAB_SHARED_RUNNERS_REGISTRATION_TOKEN: RunnerToken1
+      GITLAB_OMNIBUS_CONFIG: |
+          external_url 'http://${PRIMARY_IP}:9080'
+          pages_external_url "http://gitlab-lab:9080/"
+    ports:
+      - "9080:9080"
+      - "9443:443"
+      - "9022:22"
+
+  gitlab-runner:
+    image: gitlab/gitlab-runner:latest
+    container_name: runner-lab
+    hostname: runner-lab
+    environment:
+      REGISTRATION_TOKEN: RunnerToken1
+      REGISTER_NON_INTERACTIVE: "true"
+      CI_SERVER_URL: http://${PRIMARY_IP}:9080
+      RUNNER_NAME: LAB-RUNNER
+      RUNNER_EXECUTOR: docker
+      DOCKER_IMAGE: docker:stable 
+      DOCKER_PRIVILEGED: "true"
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+  
+  registry:
+    image: registry
+    container_name: gitlab-registry
+    hostname: gitlab-registry
+    ports:
+    - "5000:5000"
+
+  batfish:
+    image: batfish
+    container_name: gitlab-batfish
+    hostname: gitlab-batfish
+    ports:
+    - "9996:9996"
+    - "9997:9997"
+    - "9998:9998"

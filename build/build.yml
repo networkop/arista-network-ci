@@ -1,0 +1,12 @@
+---
+- hosts: clos
+  connection: local
+  gather_facts: no
+  
+
+  roles:
+    - build
+  vars:
+    buildenv: lab
+    outpath: "./configs"
+    buildpath: "{{ outpath }}/{{ buildenv }}_{{ inventory_hostname }}"

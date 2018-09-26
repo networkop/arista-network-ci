@@ -1,0 +1,120 @@
+image: $LOCAL_REGISTRY/networkci
+
+variables:
+  PRIMARY_IP: 172.17.0.1
+  LOCAL_REGISTRY: $PRIMARY_IP:5000
+  CONF_DIR: $CI_PROJECT_DIR/outputs/configs
+  CEOS_IMAGE: $LOCAL_REGISTRY/ceos:4.20.0F
+
+stages:
+  - build
+  - analysis
+  - test
+  - diff
+  - push
+
+.generate: &generate_template
+  before_script:
+  - mkdir -p $CONF_DIR
+  script: 
+  - cd build
+  - ansible-playbook -e buildenv=$BUILDENV 
+                     -e ansible_python_interpreter=/usr/bin/python3 
+                     -e @group_vars/intended.yml 
+                     -e outpath=$CONF_DIR
+                     build.yml
+  artifacts:
+    when: always
+    paths:
+    - ./outputs
+
+generate_lab_configs:
+  <<: *generate_template
+  stage: build
+  variables:
+    BUILDENV: lab
+
+generate_prod_configs:
+  <<: *generate_template
+  stage: build
+  variables:
+    BUILDENV: prod
+
+batfish:
+  stage: analysis
+  before_script:
+    - mkdir -p ./candidate/configs
+    - mkdir -p ./candidate-with-failure/configs
+    - cp $CONF_DIR/prod_* ./candidate/configs
+    - cp $CONF_DIR/prod_* ./candidate-with-failure/configs
+    - cp ./tests/batfish/node_blacklist ./candidate-with-failure/node_blacklist
+  script:
+    - ./tests/batfish/leaf-3.py --host $PRIMARY_IP --log ./outputs/batfish.txt
+  artifacts:
+    when: always
+    paths:
+      - ./outputs
+
+lab_testing:
+  stage: test
+  before_script:
+  - dockerd --insecure-registry $LOCAL_REGISTRY &
+  - sleep 2
+  - mkdir -p $CI_PROJECT_DIR/outputs/robot
+  - docker image pull $LOCAL_REGISTRY/ceos:4.20.0F
+  - docker image tag $LOCAL_REGISTRY/ceos:4.20.0F ceos:4.20.0F
+  - docker image pull networkop/alpine-host:latest
+  - docker image tag networkop/alpine-host alpine-host
+  - pip3 install --upgrade git+https://github.com/networkop/arista-ceos-topo.git
+  - docker-topo --create ./tests/robot/topo.yml
+  - docker exec lab_Leaf-1 wfw Aaa
+  - sleep 120
+  script:
+  - cd ./tests/robot
+  - mkdir ./report
+  - validate_network.py --config test.yml --reportdir report
+  - cp report/* $CI_PROJECT_DIR/outputs/robot/
+  - ./has_failed.sh
+  artifacts:
+    when: always
+    paths:
+    - ./outputs
+
+generate_diffs:
+  stage: diff
+  before_script:
+  - mkdir -p $CI_PROJECT_DIR/outputs/diffs
+  script:
+  - cd ./build
+  - ansible-playbook --diff --check 
+                     -e PROD_IP=$PRIMARY_IP 
+                     -e buildenv=$BUILDENV 
+                     -e outpath=$CI_PROJECT_DIR/outputs/diffs
+                     -e confdir=$CONF_DIR
+                     diff.yml
+  variables:
+    BUILDENV: prod
+  artifacts:
+    when: always
+    paths:
+    - ./outputs
+
+push_to_prod:
+  stage: push
+  before_script:
+  - mkdir -p $CI_PROJECT_DIR/outputs/snapshots
+  script:
+  - cd ./build
+  - ansible-playbook -e PROD_IP=$PRIMARY_IP 
+                     -e buildenv=$BUILDENV  
+                     -e outpath=$CI_PROJECT_DIR/outputs/snapshots
+                     -e confdir=$CONF_DIR
+                     push.yml
+  when: manual
+  allow_failure: true
+  artifacts:
+    when: always
+    paths:
+    - ./outputs
+  variables:
+    BUILDENV: prod

@@ -1,0 +1,42 @@
+
+#####################
+# ARP table before: #
+#####################
+
+{% set arp_before = arp_diff.msg[2] %}
+{% for arp in arp_before %}
+{{ arp.address }} {{ arp.hwAddress }} on {{ arp.interface }}
+{% endfor %}
+------------------------------------------------------------------
+
+####################
+# ARP table after: #
+####################
+
+{% set arp_after = arp_diff.msg[4] %}
+{% for arp in arp_after %}
+{{ arp.address }} {{ arp.hwAddress }} on {{ arp.interface }}
+{% endfor %}
+------------------------------------------------------------------
+
+{% set arp_ip_before = arp_before | json_query('[*].address') %}
+{% set arp_ip_after  = arp_after  | json_query('[*].address') %}
+
+####################
+# ARP table added: #
+####################
+
+{{ arp_ip_after | difference(arp_ip_before) | to_nice_json }}
+------------------------------------------------------------------
+
+######################
+# ARP table removed: #
+######################
+
+
+{{ arp_ip_before | difference(arp_ip_after) | to_nice_json }}
+------------------------------------------------------------------
+
+
+
+

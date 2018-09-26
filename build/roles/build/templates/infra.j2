@@ -1,0 +1,9 @@
+{% for peer, link in ipam[inventory_hostname].items() %}
+!
+interface {{ link.my_intf }}
+   description {{ peer }}:{{ link.peer_intf }}:{{ link.peer_ip }}
+   no switchport
+   ip address {{ link.my_ip }}
+   exit
+!
+{% endfor %}

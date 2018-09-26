@@ -1,0 +1,4 @@
+- name: Generate configuration from templates
+  template:
+    src: full.j2
+    dest: "{{ buildpath }}"

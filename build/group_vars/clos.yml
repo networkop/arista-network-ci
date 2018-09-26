@@ -1,0 +1,9 @@
+ansible_connection: local
+ansible_network_os: eos
+ansible_user: arista
+ansible_ssh_pass: arista
+eapi:
+  host: "{{ PROD_IP }}"
+  transport: eapi
+  authorize: yes
+  validate_certs: False

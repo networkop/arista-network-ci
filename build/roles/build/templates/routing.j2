@@ -1,0 +1,27 @@
+{% if bgp.routerid[inventory_hostname] is defined %}
+!
+ip routing
+!
+route-map RMAP-CONNECTED-BGP permit 1000
+   match ip address prefix-list PL-ALL-LOOPBACKS
+!
+ip prefix-list PL-LOOPBACKS seq 10 permit 0.0.0.0/0 ge 32
+!
+interface Loopback0
+   description ROUTER-ID
+   ip address {{ bgp.routerid[inventory_hostname] }}
+   exit
+!
+router bgp {{ bgp.asn[inventory_hostname] }}
+{% for peer, link in ipam[inventory_hostname].items() %}
+{% set peer_ip = link.peer_ip | ipaddr('address')  %}
+{% if bgp.asn[peer] is defined %}
+   neighbor {{ peer_ip }} remote-as {{ bgp.asn[peer] }}
+   neighbor {{ peer_ip }} send-community
+   neighbor {{ peer_ip }} maximum-routes 12000
+{% endif %}
+{% endfor %}
+   redistribute connected route-map RMAP-CONNECTED-BGP
+   exit
+!
+{% endif %}

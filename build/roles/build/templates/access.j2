@@ -1,0 +1,15 @@
+
+{% if servers[inventory_hostname] is defined %}
+{% set config = servers[inventory_hostname] %}
+vlan {{ config.vlan }}
+!
+interface Vlan{{ config.vlan }}
+   ip address {{ config.svi }}
+   exit
+!
+interface {{ config.interfaces[buildenv] }}
+   switchport
+   switchport mode access 
+   switchport access vlan {{ config.vlan }}
+   exit
+{% endif %}

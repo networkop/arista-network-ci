@@ -1,0 +1,84 @@
+- name: Before ARP
+  eos_command:
+    provider: "{{ eapi }}"
+    commands: 
+    - show arp
+  register: "{{ 'before_arp' if when == 'before' else 'pass' }}"
+  when: when == "before"
+
+- name: Before IP route
+  eos_command:
+    provider: "{{ eapi }}"
+    commands: 
+    - show ip route
+  register:  "{{ 'before_sir' if when == 'before' else 'pass' }}"
+  when: when == "before"
+
+
+- name: After ARP
+  eos_command:
+    provider: "{{ eapi }}"
+    commands: 
+    - show arp
+  register: after_arp
+  when: when == "after"
+
+- name: After IP route
+  eos_command:
+    provider: "{{ eapi }}"
+    commands: 
+    - show ip route
+  register: after_sir
+  when: when == "after"
+
+- debug: 
+    msg: "ARP count hasn't changed"
+  when: 
+  - when == "after"
+  - before_arp.stdout[0].ipV4Neighbors|length == after_arp.stdout[0].ipV4Neighbors|length
+  
+- debug: 
+    msg: "IP route count hasn't changed"
+  when: 
+  - when == "after"
+  - before_sir.stdout[0].vrfs.default.routes|length == after_sir.stdout[0].vrfs.default.routes|length
+
+- name: Display changes to ARP table
+  debug: 
+    msg: 
+    - "ARP count has changed"
+    - "ARP table before:"
+    - "{{ before_arp.stdout[0].ipV4Neighbors }}"
+    - "ARP table after:"
+    - "{{ after_arp.stdout[0].ipV4Neighbors }}"
+  register: arp_diff
+  when: 
+  - when == "after"
+  - before_arp.stdout[0].ipV4Neighbors|length != after_arp.stdout[0].ipV4Neighbors|length
+  
+- name: Display changes to IP route table
+  debug: 
+    msg: 
+    - "IP route count has changed"
+    - "IP route table before:"
+    - "{{ before_sir.stdout[0].vrfs.default.routes }}"
+    - "IP route table after:"
+    - "{{ after_sir.stdout[0].vrfs.default.routes }}"
+  register: sir_diff
+  when: 
+  - when == "after"
+  - before_sir.stdout[0].vrfs.default.routes|length != after_sir.stdout[0].vrfs.default.routes|length
+
+- name: Save ARP changes to a file
+  template:
+    dest: "{{ outpath }}/arp_{{inventory_hostname}}.txt"
+    src: arp.j2
+  check_mode: no
+  when: not arp_diff is skipped
+
+- name: Save IP route changes to a file
+  template:
+    dest: "{{ outpath }}/sir_{{inventory_hostname}}.txt"
+    src: sir.j2
+  check_mode: no
+  when: not sir_diff is skipped
