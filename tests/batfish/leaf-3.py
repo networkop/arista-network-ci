@@ -78,7 +78,7 @@ def test_controlplane(isFailed):
     bgp = bfq.bgpSessionStatus(nodes='leaf.*', includeEstablishedCount=True).answer().frame()
     
     # All leaves should have at least one peering with each spine
-    violators = bgp.groupby('Node').filter(lambda x: set(x['Remote_Node']) != spines)
+    violators = bgp.groupby('Node').filter(lambda x: set(x['Remote_Node']).difference(spines) != set([]))
     if len(violators) > 0:
         logging.error("Found leaves that do not have at least one peering to each spine")
         logging.error(violators[['Node', 'Remote_Node']])
@@ -87,7 +87,7 @@ def test_controlplane(isFailed):
         logging.info("All leaves have at least one peering with each spine")
    
     # All leaves should only peer with spines
-    non_spines = bgp.groupby('Node').filter(lambda x: not all(x['Remote_Node'].str.contains('spine')))
+    non_spines = bgp[~bgp['Remote_Node'].str.contains('spine', na=False)]
     if len(non_spines) > 0:
         logging.error("Leaves do not only peer with spines")
         logging.error(non_spines[['Node', 'Remote_Node']])
