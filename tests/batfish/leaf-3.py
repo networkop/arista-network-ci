@@ -71,7 +71,7 @@ def test_dataplane(isFailed, fromNode, checkMultipath=True):
 
 def test_controlplane(isFailed):
     # Define a list of Spine switches
-    spines = set(['spine-1', 'spine-2'])
+    spines = set(bfq.nodeProperties(nodes='spine.*').answer().frame()['Node'])
     logging.info("Progress: Analyzing control plane properties")
 
     # Get all BGP session status for leaf nodes
