@@ -36,8 +36,7 @@ In addition to the above containers, Gitlab runner will spin-up Docker container
 
 ## Environment Setup
 
-> Note1: use old cEOS-lab image (4.20.0F). Newer images may fail on the last Robot test.   
-> Note2: Stable internet connection is needed 
+> Note: Stable internet connection is required
 
 Clone this git repository
 
