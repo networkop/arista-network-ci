@@ -75,7 +75,7 @@ def test_controlplane(isFailed):
     logging.info("Progress: Analyzing control plane properties")
 
     # Get all BGP session status for leaf nodes
-    bgp = bfq.bgpSessionStatus(nodes='leaf.*', includeEstablishedCount=True).answer().frame()
+    bgp = bfq.bgpSessionStatus(nodes='leaf.*').answer().frame()
     
     # All leaves should have at least one peering with each spine
     violators = bgp.groupby('Node').filter(lambda x: set(x['Remote_Node']).difference(spines) != set([]))
