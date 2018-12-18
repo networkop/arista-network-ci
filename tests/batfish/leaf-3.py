@@ -60,7 +60,7 @@ def test_dataplane(isFailed, fromNode, checkMultipath=True):
             logging.info("Number of paths {} == {} number of spines".format(len(data['paths']), mpath))
         # Traceroute has to traverse exactly two hops
         for path in data['paths']:
-            if len(path.get('hops',[])) != 2:
+            if len(path.get('hops',[])) != 2+1: # newer versions of batfish now include source as one of the hops
                 logging.error("Traceroute has not traversed exactly two hops")
                 logging.error(path)
                 isFailed = True 
@@ -122,7 +122,7 @@ def test_config_sanity(isFailed):
 def print_reduced_rechability(answer):
     logging.info("Progress: the following flows will fail as the result of an outage")
     for row in answer['rows']:
-        logging.info("{} -> {}".format(row['flow']['srcIp'], row['flow']['dstIp']))
+        logging.info("{} -> {}".format(row['Flow']['srcIp'], row['Flow']['dstIp']))
 
 
 def main():
@@ -175,7 +175,7 @@ def main():
     logging.info("\nProgress: analysing failure conditions")
     bf_set_snapshot('failure')
     dpFailedoutage = test_dataplane(False, fromNode='leaf-3')
-    rr = bfq.reducedReachability().answer(snapshot='candidate', reference_snapshot='failure')
+    rr = bfq.differentialReachability().answer(snapshot='candidate', reference_snapshot='failure')
     print_reduced_rechability(rr.get('answerElements')[0])
 
     
