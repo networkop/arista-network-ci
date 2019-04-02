@@ -16,11 +16,12 @@ stages:
 .generate: &generate_template
   before_script:
   - mkdir -p $CONF_DIR
-  script: 
+  script:
   - cd build
-  - ansible-playbook -e buildenv=$BUILDENV 
-                     -e ansible_python_interpreter=/usr/bin/python3 
-                     -e @group_vars/intended.yml 
+  - chmod 700 /builds/root/network-ci/build
+  - ansible-playbook -e buildenv=$BUILDENV
+                     -e ansible_python_interpreter=/usr/bin/python3
+                     -e @group_vars/intended.yml
                      -e outpath=$CONF_DIR
                      build.yml
   artifacts:
@@ -86,9 +87,9 @@ generate_diffs:
   - mkdir -p $CI_PROJECT_DIR/outputs/diffs
   script:
   - cd ./build
-  - ansible-playbook --diff --check 
-                     -e PROD_IP=$PRIMARY_IP 
-                     -e buildenv=$BUILDENV 
+  - ansible-playbook --diff --check
+                     -e PROD_IP=$PRIMARY_IP
+                     -e buildenv=$BUILDENV
                      -e outpath=$CI_PROJECT_DIR/outputs/diffs
                      -e confdir=$CONF_DIR
                      diff.yml
@@ -105,8 +106,8 @@ push_to_prod:
   - mkdir -p $CI_PROJECT_DIR/outputs/snapshots
   script:
   - cd ./build
-  - ansible-playbook -e PROD_IP=$PRIMARY_IP 
-                     -e buildenv=$BUILDENV  
+  - ansible-playbook -e PROD_IP=$PRIMARY_IP
+                     -e buildenv=$BUILDENV
                      -e outpath=$CI_PROJECT_DIR/outputs/snapshots
                      -e confdir=$CONF_DIR
                      push.yml
