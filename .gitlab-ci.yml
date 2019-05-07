@@ -23,6 +23,7 @@ stages:
                      -e ansible_python_interpreter=/usr/bin/python3
                      -e @group_vars/intended.yml
                      -e outpath=$CONF_DIR
+                     -i ./hosts
                      build.yml
   artifacts:
     when: always
@@ -92,6 +93,7 @@ generate_diffs:
                      -e buildenv=$BUILDENV
                      -e outpath=$CI_PROJECT_DIR/outputs/diffs
                      -e confdir=$CONF_DIR
+                     -i ./hosts
                      diff.yml
   variables:
     BUILDENV: prod
@@ -110,6 +112,7 @@ push_to_prod:
                      -e buildenv=$BUILDENV
                      -e outpath=$CI_PROJECT_DIR/outputs/snapshots
                      -e confdir=$CONF_DIR
+                     -i ./hosts
                      push.yml
   when: manual
   allow_failure: true

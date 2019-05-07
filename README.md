@@ -143,6 +143,19 @@ git remote remove origin
 git remote add origin http://$PRIMARY_IP:9080/root/network-ci.git
 ```
 
+Make sure you're on the master branch. 
+
+```
+git branch
+* master
+```
+
+If not, create it:
+
+```
+git checkout -b master
+```
+
 ## Network CI Walkthrough
 
 ### Building production network
@@ -158,6 +171,8 @@ Build the "production" topology (requires [docker-topo](https://github.com/netwo
 
 ```
 cd ../prod
+docker image pull networkop/alpine-host:latest
+docker image tag networkop/alpine-host alpine-host
 docker-topo --create topo.yml
 ```
 

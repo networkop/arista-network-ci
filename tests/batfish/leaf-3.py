@@ -155,7 +155,7 @@ def main():
     
     bf_session.coordinatorHost = args.host 
     
-    bf_logger.setLevel(logging.WARN)
+    #bf_logger.setLevel(logging.WARN)
     
     if args.log:
         logging.basicConfig(filename=args.log, format='%(levelname)s: %(message)s', level=logging.INFO)
