@@ -4,7 +4,7 @@ RUN apt-get update && apt-get install -y \
     git lsb-release wget unzip \
     openjdk-8-jdk-headless maven binutils libgomp1
 
-RUN git clone https://github.com/batfish/batfish.git
+RUN git clone --depth 1 --branch 21sep2018 https://github.com/batfish/batfish.git
 
 RUN ["/bin/bash", "-c", "cd batfish && \
                          tools/install_z3.sh && \
